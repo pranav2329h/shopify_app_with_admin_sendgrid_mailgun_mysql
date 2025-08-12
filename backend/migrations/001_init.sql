@@ -1,0 +1,45 @@
+-- 001_init.sql (same as earlier bundle)
+CREATE TABLE IF NOT EXISTS shop (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  shop VARCHAR(255) NOT NULL UNIQUE,
+  access_token VARCHAR(255) NOT NULL,
+  welcome_enabled TINYINT(1) DEFAULT 1,
+  cart_reminder_enabled TINYINT(1) DEFAULT 1,
+  cart_reminder_delay_hours INT DEFAULT 6,
+  wishlist_reminder_enabled TINYINT(1) DEFAULT 1,
+  wishlist_reminder_delay_hours INT DEFAULT 24,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS email_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  recipient VARCHAR(255) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  body MEDIUMTEXT NOT NULL,
+  sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  shop VARCHAR(255),
+  meta JSON NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS reminder_queue (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  kind VARCHAR(32) NOT NULL,
+  shop VARCHAR(255) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  payload JSON NOT NULL,
+  due_at DATETIME NOT NULL,
+  sent TINYINT(1) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_due_at (due_at),
+  KEY idx_sent (sent)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS wishlist_event (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  shop VARCHAR(255) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  product_id VARCHAR(64) NOT NULL,
+  title VARCHAR(255),
+  image VARCHAR(512),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

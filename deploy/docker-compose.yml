@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Backend.Dockerfile
+    env_file:
+      - backend/.env
+    volumes:
+      - ./backend:/app/backend
+    expose:
+      - "5000"
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - backend
+    volumes:
+      - ./deploy/nginx/conf.d/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/static:/usr/share/nginx/html/static:ro
+      - certbot-webroot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    entrypoint: sh -c "trap exit TERM; while :; do sleep 12h; certbot renew --webroot -w /var/www/certbot --quiet; done"
+
+volumes:
+  letsencrypt:
+  certbot-webroot:
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: shopify_app
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  letsencrypt:
+  certbot-webroot:
+  mysql-data:
