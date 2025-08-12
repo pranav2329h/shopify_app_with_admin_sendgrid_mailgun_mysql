@@ -1,5 +1,9 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './ui/App'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import Install from './ui/Install';
 
-createRoot(document.getElementById('root')!).render(<App />)
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <Install />
+  </React.StrictMode>
+);
